@@ -1,20 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".IntroActivity"
-    android:orientation="vertical">
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/intro"
-        android:layout_gravity="center"
-        android:paddingTop="50dp"
-        />
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
 
     <TextView
         android:layout_width="wrap_content"
@@ -22,27 +11,26 @@
         android:text="@string/intro_main"
         android:textSize="23dp"
         android:textStyle="bold"
-        android:gravity="center"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
-        android:paddingTop="15dp" />
+        android:paddingTop="60dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/intro_detail"
         android:textSize="18dp"
-        android:gravity="center"
-        android:paddingTop="23dp"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp" />
+        android:paddingTop="30dp"
+        android:gravity="center_horizontal"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp" />
 
     <Button
         android:id="@+id/buttonintro1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="60dp"
         android:layout_marginRight="15dp"
         android:text="@string/intro_button"
         android:textColor="@color/white"
@@ -57,8 +45,5 @@
         android:text="@string/intro_delay"
         android:textColor="@color/design_default_color_primary_variant"
         android:backgroundTint="#FAF8F4" />
-
-
-
 
 </LinearLayout>
