@@ -1,6 +1,7 @@
 package com.busani.ch01_layout.pr01
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,17 @@ class Layout1Activity : AppCompatActivity() {
         val button1: Button= findViewById(R.id.button1)
         val button2: Button= findViewById(R.id.button2)
         val button3= findViewById<Button>(R.id.button3)
+        val button4= findViewById<Button>(R.id.button4)
+
+        button1.setOnClickListener {
+            println("버튼 1번 클릭, 버튼 2번 안보이게")
+            button2.visibility = View.INVISIBLE
+        }
+        button3.setOnClickListener {
+            println("버튼 3번 클릭, 버튼 2번 보이게")
+            button2.visibility = View.VISIBLE
+        }
+
 
     }
 }

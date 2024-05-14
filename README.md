@@ -98,5 +98,53 @@ MyAndroidApp/
     - XML 태그는 대소문자를 구분한다.
     - 태그의 쌍은 정확하게 매칭이 되어야 함.
     - 속성의 값은 반드시 큰따옴표나 작은따옴표로 감싸야 함.
-    - 루트 엘리먼트(최상위)는 하나여야 함.
+  - 루트 엘리먼트(최상위)는 하나여야 함.
 
+## 뷰의 레이아웃
+- [뷰의 레이아웃](https://developer.android.com/develop/ui/views/layout/declaring-layout?hl=ko)
+- View 클래스 : (화면 구성과 관련된 클래스)
+    - ViewGroup : View의 하위클래스지만, 화면에는 아무것도 출력하지 않고
+      다른 뷰 여러개를 묶는 그릇 역할 클래스
+        - XXXLayout : 뷰의 컨테이너 역할
+    - TextView, XXXView : 특정 UI를 출력할 목적으로 사용하는 클래스
+
+## 뷰 바인딩
+- 레이아웃 XML 파일에 선언한 뷰 객체를 코드에서 쉽게 이용하는 방법
+- 모듈 단위 build.gradle 파일 android 영역에 설정 선언 추가
+  ```
+  android {
+   ...(생략)
+   viewBinding { enable = true }
+   ...
+  }
+  ```
+- 그레이들을 동기화하면, 자동으로 뷰 객체 포함하는 클래스가 생성
+- 레이아웃 XML 파일의 이름을 따름
+    - 클래스이름 : 첫글자 및 _ 뒤를 대문자로 바꾼 후 'Binding' 추가
+        - activity_main.xml -> ActivityMainBinding
+  ```kt
+       // 바인딩 객체 획득 (View Binding)
+       val binding = ActivityBindingBinding.inflate(layoutInflater)
+
+       // 바인딩 객체로 화면을 출력
+       setContentView(binding.root)
+
+       // findViewById를 사용하지 않고 뷰 객체 사용
+       binding.visibleButton.setOnClickListener {
+           binding.targetView.visibility = View.VISIBLE
+       }
+  ```
+    - [공식문서 매뉴얼](https://developer.android.com/topic/libraries/view-binding?hl=ko#groovy)
+
+## 뷰를 배치하는 레이아웃
+1. 수평, 수직으로 배치 - LinearLayout
+2. 상대적은 위치로 배치 - RelativeLayout
+3. 겹쳐서 배치 - FrameLayout
+4. 격자 형태로 배치 - GridLayout
+5. 제약조건으로 배치 - ConstraintLayout
+
+## 사용자 이벤트 처리
+1. 터치 이벤트
+2. 키 이벤트
+3. 뷰 이벤트
+- [이벤트 공식문서](https://developer.android.com/develop/ui/views/touch-and-input/input-events?hl=ko)

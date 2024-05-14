@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!--  로그인 화면 제목  -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="로그인 화면"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="16dp"/>
+
+    <!--  이메일 입력  -->
+    <EditText
+        android:id="@+id/emailInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="이메일을 입력하세요"
+        android:inputType="textEmailAddress"/>
+
+    <!--  비밀번호 입력  -->
+    <EditText
+        android:id="@+id/passwordInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="비밀번호를 입력하세요"
+        android:inputType="textPassword"/>
+
+    <!--  자동 로그인, 다음에 로그인 유지  -->
+    <CheckBox
+        android:id="@+id/autoLoginCheckbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="자동 로그인"/>
+    <Switch
+        android:id="@+id/stayLoggedInSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="다음에 로그인 유지"/>
+
+    <!--  로그인 방식 선택 라디오 버튼 그룹  -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="로그인 방식 선택:"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingTop="16dp"/>
+    <RadioGroup
+        android:id="@+id/loginMethodGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RadioButton
+            android:id="@+id/emailLoginRadio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="이메일 로그인"/>
+        <RadioButton
+            android:id="@+id/phoneLoginRadio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="휴대폰 로그인"/>
+        <RadioButton
+            android:id="@+id/socialLoginRadio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="소셜 로그인"/>
+    </RadioGroup>
+
+    <!--  로그인 버튼  -->
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="로그인"
+        android:onClick="onLoginButtonClick"
+        android:padding="8dp"/>
+
+</LinearLayout>
