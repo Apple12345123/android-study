@@ -4,13 +4,13 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.busani.ch09_recycler_view.databinding.ActivityItemEventBinding
+import com.busani.ch09_recycler_view.databinding.ActivityItemBinding
 
 class ItemTouchActivity : AppCompatActivity() {
-    lateinit var binding: ActivityItemEventBinding
+    lateinit var binding: ActivityItemBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityItemEventBinding.inflate(layoutInflater)
+        binding = ActivityItemBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // 더미 데이터 생성
