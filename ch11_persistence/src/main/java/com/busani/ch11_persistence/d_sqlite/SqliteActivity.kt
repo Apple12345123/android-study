@@ -67,6 +67,8 @@ class SqliteActivity : AppCompatActivity() {
                 with(cursor) {
                     // 커서에 다음 데이터가 없을 때까지(false) row를 순회하며 커서 진행
                     while(moveToNext()) {
+                        // getColumnIndex : 컬럼의 순서를 가져옴, 존재하지 않을 경우 -1
+                        // getColumnIndexThrow : 없으면 예외를 발생시킴
                         val id = getInt(getColumnIndex("id"))
                         val name = getString(getColumnIndex("name"))
                         val age = getInt(getColumnIndex("age"))

@@ -7,8 +7,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.busani.ch11_persistence.R
 import com.busani.ch11_persistence.databinding.ActivityPreferenceBinding
-// 선생님께서 33버전의 외부저장소 권한 방법을 몰라서 그냥 넘어감
-// 나중에 추가적으로 수정 필요
+
 class PreferenceActivity : AppCompatActivity() {
     lateinit var binding: ActivityPreferenceBinding
     override fun onCreate(savedInstanceState: Bundle?) {
