@@ -572,3 +572,1259 @@ val okString = getString(android.R.string.ok)
 - [Manifest.permission](https://developer.android.com/reference/android/Manifest.permission)
 
 ---
+
+
+## 토스트(Toast)
+
+### 1 개요
+
+토스트는 사용자가 명시적으로 닫지 않아도 자동으로 사라지는 짧은 메시지입니다. 주로 간단한 알림이나 상태를 사용자에게 알려주는 데 사용됩니다.
+
+### 2 사용 방법
+
+- 기본 토스트: `Toast.makeText(Context, String, int).show()`
+- 위치 변경: `Toast.setGravity(int, int, int)`
+- 커스텀 토스트: 사용자 정의 레이아웃 사용
+
+### 3 예제 코드
+
+```kotlin
+// 기본 토스트
+Toast.makeText(this, "Hello, World!", Toast.LENGTH_SHORT).show()
+
+// 짧은 시간 동안 메시지 표시
+Toast.makeText(this, "짧은 시간 동안 표시됩니다.", Toast.LENGTH_SHORT).show()
+
+// 긴 시간 동안 메시지 표시
+Toast.makeText(this, "긴 시간 동안 표시됩니다.", Toast.LENGTH_LONG).show()
+
+// 위치 변경
+val toast = Toast.makeText(this, "위치가 변경된 토스트입니다.", Toast.LENGTH_SHORT)
+toast.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL, 0, 0)
+toast.show()
+
+// 커스텀 토스트
+val inflater = layoutInflater
+val layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container))
+val customToast = Toast(applicationContext)
+customToast.duration = Toast.LENGTH_SHORT
+customToast.view = layout
+customToast.show()
+
+```
+
+### 4 참고 자료
+
+- [Toast 공식 문서](https://developer.android.com/guide/topics/ui/notifiers/toasts)
+
+---
+
+## 스낵바(Snackbar)
+
+### 1 개요
+
+스낵바는 화면 하단에 표시되는 메시지로, 사용자에게 간단한 알림을 제공하거나 액션을 수행할 수 있는 버튼을 포함할 수 있습니다. 토스트보다 더 많은 기능과 상호작용을 제공합니다.
+
+### 2 사용 방법
+
+- 기본 스낵바: `Snackbar.make(View, String, int).show()`
+- 액션 추가: `Snackbar.setAction(String, View.OnClickListener)`
+- 스타일 변경: `Snackbar.setActionTextColor(int)` 및 `Snackbar.view.setBackgroundColor(int)`
+- 커스텀 스낵바: 사용자 정의 레이아웃 사용
+
+### 3 예제 코드
+
+```kotlin
+// 기본 스낵바
+Snackbar.make(findViewById(R.id.root_layout), "Hello, Snackbar!", Snackbar.LENGTH_SHORT).show()
+
+// 액션 추가
+val snackbar = Snackbar.make(findViewById(R.id.root_layout), "메시지 삭제", Snackbar.LENGTH_LONG)
+snackbar.setAction("취소") {
+    Toast.makeText(this, "삭제 취소됨", Toast.LENGTH_SHORT).show()
+}
+snackbar.show()
+
+// 스타일 변경
+val styledSnackbar = Snackbar.make(findViewById(R.id.root_layout), "스타일 변경된 스낵바", Snackbar.LENGTH_SHORT)
+styledSnackbar.setAction("확인") { }
+styledSnackbar.setActionTextColor(Color.YELLOW)
+styledSnackbar.view.setBackgroundColor(Color.BLUE)
+styledSnackbar.show()
+
+// 커스텀 스낵바 (커스텀 레이아웃)
+val customSnackbar = Snackbar.make(findViewById(R.id.root_layout), "", Snackbar.LENGTH_LONG)
+val customView = layoutInflater.inflate(R.layout.custom_snackbar, null)
+// 기존 텍스트와 액션을 제거하고 커스텀 레이아웃을 설정
+val snackbarLayout = customSnackbar.view as Snackbar.SnackbarLayout
+snackbarLayout.setPadding(0, 0, 0, 0)
+snackbarLayout.addView(customView, 0)
+customSnackbar.show()
+
+```
+
+### 4 참고 자료
+
+- [Snackbar 공식 문서](https://developer.android.com/reference/com/google/android/material/snackbar/Snackbar)
+
+---
+
+## 다이얼로그(대화상자, Dialog)
+
+### 1 개요
+
+다이얼로그는 사용자가 상호작용할 수 있는 팝업 창입니다. 정보를 제공하거나 사용자로부터 입력을 받을 수 있습니다. 다양한 종류의 다이얼로그가 있습니다.
+
+### 2 종류 및 사용 방법
+
+- AlertDialog: 간단한 메시지나 선택지를 제공
+- DatePickerDialog: 날짜를 선택할 수 있는 다이얼로그
+- TimePickerDialog: 시간을 선택할 수 있는 다이얼로그
+- ProgressDialog: 진행 상태를 표시 (Deprecated)
+- Custom Dialog: 사용자 정의 레이아웃을 사용하는 다이얼로그
+
+### 3 예제 코드
+
+```kotlin
+// AlertDialog
+val alertDialogBuilder = AlertDialog.Builder(this)
+alertDialogBuilder.setTitle("경고")
+alertDialogBuilder.setMessage("이 작업을 수행하시겠습니까?")
+alertDialogBuilder.setPositiveButton("예") { dialog, which ->
+    Toast.makeText(applicationContext, "예를 선택했습니다.", Toast.LENGTH_SHORT).show()
+}
+alertDialogBuilder.setNegativeButton("아니오") { dialog, which ->
+    Toast.makeText(applicationContext, "아니오를 선택했습니다.", Toast.LENGTH_SHORT).show()
+}
+alertDialogBuilder.show()
+
+// DatePickerDialog
+val calendar = Calendar.getInstance()
+val datePickerDialog = DatePickerDialog(this, { _, year, month, day ->
+    val selectedDate = "$year-${month + 1}-$day"
+    Toast.makeText(this, "선택된 날짜: $selectedDate", Toast.LENGTH_SHORT).show()
+}, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+datePickerDialog.show()
+
+// TimePickerDialog
+val timePickerDialog = TimePickerDialog(this, { _, hour, minute ->
+    val selectedTime = "$hour:$minute"
+    Toast.makeText(this, "선택된 시간: $selectedTime", Toast.LENGTH_SHORT).show()
+}, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true)
+timePickerDialog.show()
+
+// Custom Dialog  (커스텀 레이아웃)
+val customDialogView = layoutInflater.inflate(R.layout.custom_dialog, null)
+val customDialog = AlertDialog.Builder(this)
+    .setView(customDialogView)
+    .create()
+
+customDialogView.findViewById<Button>(R.id.button).setOnClickListener {
+    val inputText = customDialogView.findViewById<EditText>(R.id.editText).text.toString()
+    Toast.makeText(this, "입력된 값: $inputText", Toast.LENGTH_SHORT).show()
+    customDialog.dismiss()
+}
+customDialog.show()
+
+```
+
+### 4 참고 자료
+
+- [Dialogs 공식 문서](https://developer.android.com/guide/topics/ui/dialogs)
+
+---
+
+## 링톤(Ringtone)
+
+### 1 개요
+
+링톤(Ringtone)은 장치의 기본 알림 소리를 재생하는 기능입니다. 이를 통해 사용자에게 중요한 알림을 소리로 전달할 수 있습니다.
+
+### 2 설정 방법
+
+링톤을 재생하려면 `RingtoneManager` 클래스를 사용합니다. 알림 소리의 URI를 가져와 `Ringtone` 객체를 생성하고, 이를 재생합니다.
+
+### 3 코드 예제
+
+```kotlin
+    // 링톤을 재생하는 메서드입니다.
+    private fun playRingtone() {
+        val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) // 기본 알림 소리의 URI를 가져옵니다.
+        val ringtone = RingtoneManager.getRingtone(applicationContext, soundUri) // 알림 소리를 재생하는 Ringtone 객체를 생성합니다.
+        ringtone.play() // 알림 소리를 재생합니다.
+    }
+
+```
+
+### 4 주요 포인트
+
+- `RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)`을 사용하여 기본 알림 소리의 URI를 가져옵니다.
+- `RingtoneManager.getRingtone(context, uri)`을 사용하여 `Ringtone` 객체를 생성합니다.
+- `ringtone.play()`를 호출하여 알림 소리를 재생합니다.
+
+---
+
+## 진동(Vibrator)
+
+### 1 개요
+
+진동(Vibrator)은 장치의 진동 기능을 활용하여 사용자에게 알림을 전달하는 기능입니다. 이를 통해 소리 없이도 중요한 알림을 전달할 수 있습니다.
+
+### 2 설정 방법
+
+진동을 발생시키려면 `Vibrator` 클래스를 사용합니다. API 레벨에 따라 `VibratorManager`나 `Vibrator`를 사용하여 진동을 설정할 수 있습니다.
+
+### 3 코드 예제
+
+```kotlin
+    // 진동을 발생시키는 메서드입니다.
+    private fun vibratePhone() {
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val manager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager // VibratorManager를 가져옵니다.
+            manager.defaultVibrator // 기본 진동기를 가져옵니다.
+        } else {
+            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator // Vibrator를 직접 가져옵니다.
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(
+                VibrationEffect.createWaveform(longArrayOf(0, 500, 1000, 500), -1) // 진동 패턴 설정
+            )
+        } else {
+            vibrator.vibrate(longArrayOf(0, 500, 1000, 500), -1) // 진동 패턴 설정
+        }
+    }
+```
+
+### 4 주요 포인트
+
+- API 31 이상에서는 `VibratorManager`를 사용하여 진동기를 가져옵니다.
+- API 26 이상에서는 `VibrationEffect`를 사용하여 진동 효과를 설정합니다.
+- `vibrator.vibrate(longArrayOf(0, 500, 1000, 500), -1)`를 사용하여 진동 패턴을 설정하고 진동을 발생시킵니다.
+
+### 공식 문서
+
+- [RingtoneManager](https://developer.android.com/reference/android/media/RingtoneManager)
+- [Ringtone](https://developer.android.com/reference/android/media/Ringtone)
+- [Vibrator](https://developer.android.com/reference/android/os/Vibrator)
+- [VibrationEffect](https://developer.android.com/reference/android/os/VibrationEffect)
+- [VibratorManager](https://developer.android.com/reference/android/os/VibratorManager)
+
+---
+
+## 알림
+
+알림(Notification)을 만드는 순서, 중요도 상수, 채널의 함수, 알림 구성 요소 등을 정리하겠습니다.
+
+### 1. 알림 만드는 순서
+
+1. 알림 채널 생성 (API 26 이상):
+    - 알림을 표시하기 위해서는 먼저 알림 채널을 생성해야 합니다.
+    - `NotificationChannel` 객체를 생성하고, 이를 `NotificationManager`를 통해 등록합니다.
+2. 알림 생성:
+    - `NotificationCompat.Builder`를 사용하여 알림을 생성합니다.
+    - 알림의 아이콘, 제목, 내용, 우선 순위 등을 설정합니다.
+3. 알림 표시:
+    - `NotificationManagerCompat`를 사용하여 알림을 표시합니다.
+    - `notify` 메서드를 호출하여 알림을 표시합니다.
+4. 권한 요청 (API 33 이상):
+    - **`POST_NOTIFICATIONS`** 권한을 요청해야 합니다.
+    - **`ActivityResultContracts.RequestPermission`**을 사용하여 권한을 요청합니다.
+
+### 2. 채널의 함수
+
+- `createNotificationChannel(channel: NotificationChannel)`:
+    - `NotificationManager` 클래스의 메서드로, 알림 채널을 생성합니다.
+- `deleteNotificationChannel(channelId: String)`:
+    - 지정된 ID의 알림 채널을 삭제합니다.
+- `getNotificationChannel(channelId: String)`:
+    - 지정된 ID의 알림 채널을 반환합니다.
+- `getNotificationChannels()`:
+    - 모든 알림 채널의 목록을 반환합니다.
+
+### 3. 알림 구성 요소
+
+- 알림 아이콘 (setSmallIcon):
+    - 알림의 아이콘을 설정합니다.
+    - 예: `builder.setSmallIcon(R.drawable.ic_notification)`
+- 알림 제목 (setContentTitle):
+    - 알림의 제목을 설정합니다.
+    - 예: `builder.setContentTitle("알림 제목")`
+- 알림 내용 (setContentText):
+    - 알림의 내용을 설정합니다.
+    - 예: `builder.setContentText("이것은 알림 내용입니다.")`
+- 알림 우선 순위 (setPriority):
+    - 알림의 우선 순위를 설정합니다.
+    - 예: `builder.setPriority(NotificationCompat.PRIORITY_DEFAULT)`
+- 알림 클릭 시 실행할 인텐트 (setContentIntent):
+    - 알림을 클릭했을 때 실행할 인텐트를 설정합니다.
+    - 예: `builder.setContentIntent(pendingIntent)`
+- 알림 클릭 시 자동 제거 (setAutoCancel):
+    - 알림을 클릭했을 때 자동으로 제거되도록 설정합니다.
+    - 예: `builder.setAutoCancel(true)`
+
+### 4. 중요도 상수 (Notification Importance Constants)
+
+알림의 중요도를 설정하는 데 사용되는 상수입니다. 중요도에 따라 알림이 사용자에게 표시되는 방식이 달라집니다.
+
+- `NotificationManager.IMPORTANCE_DEFAULT`:
+    - 기본 중요도입니다. 알림 소리가 나며, 상태바에 아이콘이 표시됩니다.
+- `NotificationManager.IMPORTANCE_HIGH`:
+    - 높은 중요도입니다. 알림 소리가 나며, 헤드업 알림으로 표시됩니다.
+- `NotificationManager.IMPORTANCE_LOW`:
+    - 낮은 중요도입니다. 알림 소리가 나지 않으며, 상태바에만 아이콘이 표시됩니다.
+- `NotificationManager.IMPORTANCE_MIN`:
+    - 최소 중요도입니다. 알림 소리가 나지 않으며, 상태바에도 아이콘이 표시되지 않습니다.
+- `NotificationManager.IMPORTANCE_MAX`:
+    - 매우 높은 중요도입니다. 알림 소리가 나며, 전체 화면 알림으로 표시될 수 있습니다.
+
+### 5. 코드 예제
+
+### 5.1 `AndroidManifest.xml` 권한 추가
+
+```xml
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+```
+
+### 5.2  코드
+
+```kotlin
+    // 알림 채널을 생성하는 메서드입니다.
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { // API 26 이상에서만 NotificationChannel을 설정합니다.
+            val channelId = "default_channel_id" // 채널 ID를 설정합니다.
+            val channelName = "Default Channel" // 채널 이름을 설정합니다.
+            val channelDescription = "This is the default channel for notifications" // 채널 설명을 설정합니다.
+            val importance = NotificationManager.IMPORTANCE_DEFAULT // 채널의 중요도를 설정합니다.
+            val channel = NotificationChannel(channelId, channelName, importance).apply {
+                description = channelDescription // 채널 설명을 설정합니다.
+            }
+
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager // NotificationManager를 가져옵니다.
+            notificationManager.createNotificationChannel(channel) // NotificationChannel을 생성합니다.
+        }
+    }
+
+    // 알림을 생성하고 표시하는 메서드입니다.
+    private fun showNotification() {
+        val channelId = "default_channel_id" // 알림 채널 ID를 설정합니다.
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // 인텐트 플래그를 설정합니다.
+        }
+        val pendingIntent = TaskStackBuilder.create(this).run {
+            addNextIntentWithParentStack(intent) // 인텐트를 스택에 추가합니다.
+            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE) // PendingIntent를 생성합니다.
+        }
+
+        val builder = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_notification) // 알림 아이콘을 설정합니다.
+            .setContentTitle("알림 제목") // 알림 제목을 설정합니다.
+            .setContentText("이것은 알림 내용입니다.") // 알림 내용을 설정합니다.
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT) // 알림의 우선 순위를 설정합니다.
+            .setContentIntent(pendingIntent) // 알림 클릭 시 실행할 인텐트를 설정합니다.
+            .setAutoCancel(true) // 알림 클릭 시 자동으로 제거되도록 설정합니다.
+
+        with(NotificationManagerCompat.from(this)) {
+            notify(1, builder.build()) // 알림을 표시합니다.
+        }
+    }
+}
+
+```
+
+- 권한요청 코드
+
+```kotlin
+
+        // 권한 요청을 위한 ActivityResultLauncher를 등록합니다.
+        val permissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                showNotification() // 권한이 허용된 경우 알림을 표시합니다.
+            } else {
+                Toast.makeText(this, "Permission denied...", Toast.LENGTH_SHORT).show() // 권한이 거부된 경우 토스트 메시지를 표시합니다.
+            }
+        }
+
+        // 버튼 클릭 리스너를 설정합니다.
+        binding.button.setOnClickListener {
+            // 알림 권한이 있는지 확인합니다.
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    "android.permission.POST_NOTIFICATIONS"
+                ) == PackageManager.PERMISSION_GRANTED) {
+                showNotification() // 권한이 허용된 경우 알림을 표시합니다.
+            } else {
+                permissionLauncher.launch("android.permission.POST_NOTIFICATIONS") // 권한이 허용되지 않은 경우 권한을 요청합니다.
+            }
+        }
+    }
+```
+
+### 공식 문서 링크
+
+- Notifications Overview: [Notifications Overview](https://developer.android.com/guide/topics/ui/notifiers/notifications)
+- NotificationCompat.Builder: [NotificationCompat.Builder](https://developer.android.com/reference/androidx/core/app/NotificationCompat.Builder)
+- NotificationManager: [NotificationManager](https://developer.android.com/reference/android/app/NotificationManager)
+- NotificationChannel: [NotificationChannel](https://developer.android.com/reference/android/app/NotificationChannel)
+
+
+---
+
+## Jetpack 라이브러리
+
+- Jetpack은 안드로이드 앱 개발을 단순화하고 고품질 앱을 쉽게 만들 수 있도록 도와주는 라이브러리 모음입니다. Jetpack 라이브러리는 코드의 재사용성을 높이고, 보일러플레이트 코드를 줄이며, 앱의 성능과 안정성을 향상시킵니다.
+- androidx 네임스페이스는 Android Jetpack 라이브러리로 구성됩니다.
+- androidX의 모든 패키지는 androidx라는 문자열로 시작하는 일관된 네임스페이스에 있습니다.
+- androidx 네임스페이스에 있는 라이브러리는 지원 라이브러리와 마찬가지로 Android 플랫폼과 별도로 제공되며 Android 출시 버전 전체에서 이전 버전과 호환됩니다.
+
+#### 기본
+
+- AppCompat: 하위 호환성을 제공하여 최신 안드로이드 기능을 모든 버전에서 사용할 수 있게 합니다.
+- Android KTX: 코틀린을 위한 확장 기능을 제공하여 코틀린 코드의 가독성과 생산성을 향상시킵니다.
+
+#### UI
+
+- ConstraintLayout: 복잡한 레이아웃을 간단하게 정의할 수 있습니다.
+- Fragment: 모듈화된 UI 컴포넌트를 구현합니다.
+- RecyclerView: 대량의 데이터를 효율적으로 표시합니다.
+- ViewPager2: 스와이프로 넘기는 화면을 구성합니다.
+- Drawerlayout: 옆에서 서랍처럼 열리는 화면을 구성합니다.
+
+- 기타 많은 기능을 지원
+
+### Jetpack 라이브러리의 이점
+
+1. 생산성 향상: 보일러플레이트 코드를 줄이고, 개발 속도를 높입니다.
+2. 품질 향상: 테스트 가능하고, 유지 보수하기 쉬운 코드를 작성할 수 있습니다.
+3. 안정성 향상: 다양한 안드로이드 버전에서 일관된 동작을 보장합니다.
+4. 최신 기술: 최신 안드로이드 기능과 디자인 패턴을 쉽게 도입할 수 있습니다.
+
+---
+
+### 참고 자료
+
+- [Android Jetpack 공식 문서](https://developer.android.com/jetpack)
+- [Jetpack 컴포넌트 개요](https://developer.android.com/jetpack/androidx)
+
+---
+
+## 안드로이드 테마 설정
+
+테마는 앱의 전체적인 룩앤필을 정의하는 중요한 요소입니다. 색상, 글꼴, 스타일 등을 지정하여 일관된 디자인을 유지할 수 있습니다.
+
+#### 테마 설정 방법
+
+Step 1: 기본 테마 정의
+
+`res/values/styles.xml` 파일에서 기본 테마를 정의합니다.
+```xml
+<resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+</resources>
+```
+
+Step 2: 색상 정의
+
+`res/values/colors.xml` 파일에서 테마에 사용할 색상을 정의합니다.
+```xml
+<resources>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="colorText">#000000</color>
+</resources>
+```
+
+Step 3: 테마 적용
+
+`AndroidManifest.xml` 파일에서 정의한 테마를 앱에 적용합니다.
+```xml
+<application
+    android:theme="@style/AppTheme"
+    ... >
+    ...
+</application>
+```
+
+#### 1.3 커스텀 테마 추가
+
+Step 1: 새로운 테마 정의
+
+`res/values/styles.xml` 파일에 커스텀 테마를 추가합니다.
+```xml
+<resources>
+    <!-- Custom theme -->
+    <style name="CustomTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:textColor">@color/colorText</item>
+    </style>
+</resources>
+```
+
+Step 2: 액티비티에 커스텀 테마 적용
+
+특정 액티비티에 커스텀 테마를 적용하려면 `AndroidManifest.xml` 파일에서 해당 액티비티에 테마를 지정합니다.
+```xml
+<activity android:name=".CustomActivity"
+    android:theme="@style/CustomTheme">
+    ...
+</activity>
+```
+
+#### 테마 컬러 항목
+
+1. colorPrimary
+- 적용 위치: 앱의 주요 색상으로, 주로 앱 바(Action Bar), 툴바(Toolbar), 상태바(Status Bar) 등에 사용됩니다.
+- 예시: 앱 바의 배경색, 버튼의 기본 색상 등.
+
+2. colorPrimaryDark
+- 적용 위치: 앱의 주요 색상이 좀 더 어두운 색상으로, 주로 상태바(Status Bar)와 일부 앱 바(Toolbar)의 배경색으로 사용됩니다.
+- 예시: 상태바의 배경색, 앱 바의 어두운 변형.
+
+3. colorAccent
+- 적용 위치: 강조 색상으로, 앱 내의 중요한 인터랙티브 요소에 사용됩니다. 버튼, 스위치, 체크박스, 프로그레스 바 등의 강조 색상으로 사용됩니다.
+- 예시: 버튼의 강조 색상, 스위치의 활성화 색상, 체크박스의 체크 색상 등.
+
+4. android:windowBackground
+- 적용 위치: 앱의 기본 배경 색상으로, 모든 액티비티와 창의 배경색으로 사용됩니다.
+- 예시: 액티비티의 기본 배경 색상, 팝업 창의 배경 색상 등.
+
+5. android:textColor
+- 적용 위치: 앱의 기본 텍스트 색상으로, 모든 텍스트 뷰(TextView), 버튼(Button) 등의 기본 텍스트 색상으로 사용됩니다.
+- 예시: TextView의 텍스트 색상, 버튼의 텍스트 색상 등.
+
+- 기타 등등...
+
+### 참고 자료
+
+- [Android Developers - Styles and Themes](https://developer.android.com/guide/topics/ui/look-and-feel/themes)
+- [Material Design - Color](https://material.io/design/color)
+
+
+---
+
+## App Bar
+
+- AppBar: 앱의 상단에 위치하며, 주로 앱의 제목, 네비게이션 아이콘, 메뉴 등을 포함하는 영역입니다.
+
+- ActionBar: 안드로이드에서 기본적으로 제공되는 상단 바 컴포넌트로, AppCompatActivity에 의해 자동으로 관리됩니다. Activity의 상태 및 주요 기능을 사용자에게 제공하는 역할을 합니다.
+
+    - 제목과 부제목 표시: 현재 화면의 제목과 부제목을 설정할 수 있습니다.
+    - 네비게이션 아이콘: 뒤로 가기 또는 홈으로 이동하는 아이콘을 추가할 수 있습니다.
+    - 액션 아이템(메뉴 아이템): 자주 사용하는 기능을 빠르게 접근할 수 있도록 메뉴를 추가할 수 있습니다.
+
+
+- Toolbar: AppBar의 구체적인 구현체로, 앱의 상단 바 역할을 합니다. 더 유연하고 커스터마이징이 가능하여 XML 레이아웃 파일에 직접 추가할 수 있습니다.
+
+---
+
+### 설정
+
+#### Step 1: AppCompatActivity 사용
+
+`AppCompatActivity`를 상속하는 액티비티를 사용하여 Action Bar를 설정합니다.
+
+#### Step 2: 테마 설정
+
+`res/values/styles.xml` 파일에서 앱의 테마를 설정합니다:
+```xml
+<resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+</resources>
+```
+
+#### Step 3: 레이아웃 파일 설정
+
+`res/layout/activity_main.xml` 파일을 생성하거나 수정합니다:
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <!-- 다른 UI 요소들을 추가 -->
+
+</LinearLayout>
+```
+
+#### Step 4: 액티비티에서 Action Bar 설정
+
+`MainActivity.kt` 파일에서 Action Bar를 설정하고 커스터마이징합니다:
+```kotlin
+package com.busanit.myapp
+
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        // Action Bar 설정
+        supportActionBar?.apply {
+            title = "메인 화면" // Action Bar 제목 설정
+            subtitle = "서브 타이틀" // Action Bar 부제목 설정
+            setDisplayHomeAsUpEnabled(true) // 네비게이션 아이콘 설정
+            setHomeAsUpIndicator(R.drawable.ic_baseline_arrow_back_24) // 네비게이션 아이콘 커스터마이징
+        }
+    }
+}
+```
+
+---
+
+## 메뉴 항목 추가 및 처리
+
+#### Step 1: 메뉴 리소스 파일 생성
+
+- 메뉴 : 메뉴 항목은 사용자가 특정 작업을 수행할 수 있도록 하는 인터페이스 요소입니다. 메뉴 항목은 보통 액션 바(Action Bar) 또는 툴바(Toolbar)에 표시됩니다.
+
+`res/menu/menu_main.xml` 파일을 생성합니다:
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_settings"
+        android:title="Settings"
+        android:showAsAction="never"/>
+    <item
+        android:id="@+id/action_favorite"
+        android:icon="@drawable/ic_baseline_favorite_24"
+        android:title="Favorite"
+        android:showAsAction="ifRoom"/>
+</menu>
+```
+
+- `showAsAction` 속성
+    1. never : 메뉴 항목을 항상 오버플로우 메뉴(더보기 메뉴)에 표시합니다.
+    2. ifRoom : 메뉴 항목을 공간이 있을 경우 액션 바나 툴바에 표시하고, 공간이 부족하면 오버플로우 메뉴에 표시합니다.
+    3. always : 항상 액션 바나 툴바에 메뉴 항목을 표시합니다. 이 옵션은 남용되지 않아야 하며, 주로 중요한 액션에만 사용해야 합니다.
+    4. withText : 아이콘과 함께 텍스트를 표시합니다. 이 옵션은 ifRoom 또는 always와 함께 사용됩니다.
+    5. collapseActionView :메뉴 항목이 액션 뷰를 확장 및 축소할 수 있도록 합니다. 주로 검색이나 기타 액션 뷰에 사용됩니다.
+
+#### Step 2: 메뉴 인플레이트
+
+`___Activity.kt` 파일에서 메뉴를 인플레이트하고 항목 클릭 이벤트를 처리합니다:
+```kotlin
+override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    menuInflater.inflate(R.menu.menu_main, menu)
+    return true
+}
+
+override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    return when (item.itemId) {
+        R.id.action_settings -> {
+            // 설정 메뉴 클릭 처리
+            true
+        }
+        R.id.action_favorite -> {
+            // 즐겨찾기 메뉴 클릭 처리
+            true
+        }
+        android.R.id.home -> {
+            // 네비게이션 아이콘 클릭 처리
+            finish() // 현재 액티비티 종료
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
+}
+```
+
+
+### 참고 자료
+
+- [Android Developers: Menus 추가](https://developer.android.com/develop/ui/views/components/menus?hl=ko)
+- [Android ActionBar 사용 가이드](https://developer.android.com/guide/topics/ui/actionbar)
+- [Material Design의 App Bar](https://material.io/components/app-bars-top)
+
+
+## Activity
+
+### 1.  Activity란
+
+Activity는 안드로이드 앱의 화면을 구성하는 기본 단위입니다. 각 Activity는 사용자와 상호작용하는 단일 화면을 나타냅니다.
+
+### 2. Activity 생명 주기(Life Cycle)
+
+Activity는 여러 상태를 거치며, 각각의 상태 전환 시 특정 콜백 메서드가 호출됩니다. 이를 Activity 생명 주기라고 합니다. 생명 주기를 이해하면 효율적으로 리소스를 관리하고 앱의 상태를 제어할 수 있습니다.
+
+### 주요 생명 주기 메서드
+
+1. onCreate()
+    - Activity가 처음 생성될 때 호출됩니다.
+    - 초기화 작업을 수행합니다. (예: UI 설정, 데이터 바인딩)
+2. onStart()
+    - Activity가 사용자에게 보이기 시작할 때 호출됩니다.
+3. onResume()
+    - Activity가 사용자와 상호작용하기 직전에 호출됩니다.
+4. onPause()
+    - 다른 Activity가 시작되려 할 때 호출됩니다.
+    - 데이터 저장 등 필요한 작업을 수행합니다.
+5. onStop()
+    - Activity가 더 이상 사용자에게 보이지 않을 때 호출됩니다.
+6. onDestroy()
+    - Activity가 소멸되기 직전에 호출됩니다.
+
+![Activity 생명주기](https://developer.android.com/images/activity_lifecycle.png)
+
+---
+
+### 참고 자료
+
+- [안드로이드 개발자 공식 문서: Activity 생명 주기](https://developer.android.com/guide/components/activities/activity-lifecycle)
+
+---
+
+## 인텐트(Intent)
+
+### 1. 인텐트(Intent)란?
+
+- *인텐트(Intent)는 안드로이드 컴포넌트 간에 작업을 수행하도록 요청하는 메시지 객체입니다. 인텐트는 주로 액티비티(Activity)를 시작하거나, 서비스(Service)를 시작하거나, 브로드캐스트(Broadcast)를 전송할 때 사용됩니다.
+
+### 주요 역할
+
+- 액티비티 전환: 인텐트를 통해 다른 액티비티를 시작할 수 있습니다.
+- 데이터 전달: 인텐트를 통해 데이터(예: 문자열, 숫자 등)를 다른 컴포넌트로 전달할 수 있습니다.
+- 외부 앱 호출: 인텐트를 통해 다른 앱을 호출할 수 있습니다. 예를 들어, 웹 브라우저를 열거나 연락처 앱을 실행할 수 있습니다.
+
+---
+
+### 2. 명시적 인텐트와 암시적 인텐트
+
+### 명시적 인텐트 (Explicit Intent)
+
+명시적 인텐트는 특정 컴포넌트를 명시적으로 지정하여 작업을 요청합니다. 주로 앱 내부에서 액티비티를 전환할 때 사용됩니다.
+
+### 예시
+
+```kotlin
+// 명시적 인텐트를 사용하여 SecondActivity 시작
+val intent = Intent(this, SecondActivity::class.java)
+startActivity(intent)
+
+```
+
+### 암시적 인텐트 (Implicit Intent)
+
+암시적 인텐트는 요청할 작업의 일반적인 정보를 제공하고, 이를 처리할 수 있는 컴포넌트를 시스템이 선택합니다. 주로 외부 앱과의 통신이나 특정 작업을 수행할 수 있는 앱을 호출할 때 사용됩니다.
+
+### 예시
+
+```kotlin
+// 암시적 인텐트를 사용하여 웹 브라우저에서 URL 열기
+val intent = Intent(Intent.ACTION_VIEW, Uri.parse("<https://www.example.com>"))
+startActivity(intent)
+
+```
+
+## Context
+
+### Context에 대해 설명
+
+Context는 안드로이드 애플리케이션의 중요한 클래스 중 하나로, 애플리케이션의 환경 정보를 제공하는 인터페이스입니다. Context는 애플리케이션의 다양한 리소스, 애플리케이션 전역의 정보 및 특정 작업을 수행할 수 있는 기능을 제공합니다.
+
+### Context의 종류
+
+안드로이드에서는 여러 종류의 Context가 있습니다.
+
+1. Application Context
+    - 애플리케이션의 수명 주기와 동일한 Context입니다.
+    - 애플리케이션 전역에서 사용할 수 있으며, 일반적으로 애플리케이션의 수명 동안 유지됩니다.
+
+2. Activity Context
+    - 특정 액티비티의 수명 주기와 동일한 Context입니다.
+    - Activity가 파괴되면 이 Context도 함께 파괴됩니다.
+
+3. Service Context
+    - 특정 서비스의 수명 주기와 동일한 Context입니다.
+
+
+### Context의 주요 역할
+
+1. 리소스 접근: 앱의 리소스에 접근할 수 있도록 합니다. (예: 문자열, 이미지, 레이아웃 등)
+2. 애플리케이션 레벨 작업 수행: 애플리케이션 레벨의 작업을 수행하는 데 사용됩니다. (예: 시작, 중지 서비스, 브로드캐스트 수신 등)
+3. 앱 컴포넌트 관리: 애플리케이션의 컴포넌트(Activity, Service, BroadcastReceiver, ContentProvider)에 대한 정보와 접근을 제공합니다.
+4. 시스템 서비스 접근: 시스템 서비스(예: WINDOW_SERVICE, LAYOUT_INFLATER_SERVICE 등)에 접근할 수 있도록 합니다.
+
+### Context의 주요 메서드
+
+#### 리소스 접근
+- `getResources()`: 앱의 리소스에 접근합니다.
+- `getString(R.string.example)`: 문자열 리소스를 가져옵니다.
+- `getDrawable(R.drawable.example)`: drawable 리소스를 가져옵니다.
+
+#### 애플리케이션 레벨 작업
+- `startActivity(Intent)`: 새로운 액티비티를 시작합니다.
+- `startService(Intent)`: 서비스를 시작합니다.
+- `stopService(Intent)`: 서비스를 중지합니다.
+- `sendBroadcast(Intent)`: 브로드캐스트를 보냅니다.
+
+### 자주 사용하는 암시적 Intent 상수들
+
+| 상수 (Constant)                  | 설명 (Description)                                      |
+|----------------------------------|---------------------------------------------------------|
+| `Intent.ACTION_VIEW`             | 주어진 URI에 대한 데이터를 보기          |
+| `Intent.ACTION_SEND`             | 데이터를 다른 애플리케이션으로 보내기     |
+| `Intent.ACTION_SENDTO`           | 특정 주소로 이메일을 보내기             |
+| `Intent.ACTION_PICK`             | 데이터를 선택하기                       |
+| `Intent.ACTION_DIAL`             | 전화 다이얼을 열기                      |
+| `Intent.ACTION_CALL`             | 직접 전화를 걸기 (권한 필요)             |
+| `Intent.ACTION_EDIT`             | 데이터를 편집하기                       |
+| `Intent.ACTION_DELETE`           | 데이터를 삭제하기                       |
+| `Intent.ACTION_GET_CONTENT`      | 사용자에게 데이터를 선택하도록 허용합니다.               |
+| `Intent.ACTION_IMAGE_CAPTURE`    | 카메라 앱을 열어 사진을 찍기            |
+| `Intent.ACTION_VIDEO_CAPTURE`    | 카메라 앱을 열어 동영상을 찍기          |
+| `Intent.ACTION_VIEW_DOWNLOADS`   | 다운로드한 파일을 보기                  |
+| `Intent.ACTION_APPLICATION_DETAILS_SETTINGS` | 앱의 설정 화면을 열기        |
+| `Intent.ACTION_SETTINGS`         | 설정 화면을 열기                        |
+| `Intent.ACTION_WEB_SEARCH`       | 웹 검색을 시작하기                      |
+
+
+## Intent와 ActivityResult
+
+### 1. 인텐트를 사용하여 데이터 전달하기
+
+#### 개념 설명
+인텐트(Intent)는 안드로이드 컴포넌트 간에 작업을 요청하거나 데이터를 주고받는 메시지 객체입니다. 데이터 전달을 위해 `putExtra` 메서드를 사용하여 인텐트에 데이터를 추가하고, `getStringExtra` 등의 메서드를 사용하여 데이터를 수신합니다.
+
+#### 인텐트를 사용하여 데이터 전달하는 방법
+
+1. 데이터 추가: `putExtra` 메서드를 사용하여 데이터를 인텐트에 추가합니다.
+2. 인텐트 시작: `startActivity` 메서드를 사용하여 인텐트를 시작합니다.
+3. 데이터 수신: 수신 측에서는 `getStringExtra` 등의 메서드를 사용하여 데이터를 수신합니다.
+
+#### 데이터 전달의 주요 메서드
+
+| 메서드                      | 설명                                                          |
+|-----------------------------|---------------------------------------------------------------|
+| `putExtra(String, value)`   | 인텐트에 추가 데이터를 넣습니다.                              |
+| `getStringExtra(String)`    | 전달된 문자열 데이터를 수신합니다.                            |
+| `getIntExtra(String, int)`  | 전달된 정수형 데이터를 수신합니다.                            |
+| `getBooleanExtra(String, boolean)` | 전달된 불린형 데이터를 수신합니다.                    |
+
+---
+
+### 2. 인텐트를 사용하여 결과 받기
+
+#### 개념 설명
+다른 액티비티를 시작하고, 그 액티비티가 종료된 후 결과를 받기 위해 `startActivityForResult` 메서드를 사용합니다. 결과는 `onActivityResult` 메서드에서 처리됩니다. 새로운 방법으로는 Activity Result API를 사용하여 결과를 처리할 수 있습니다.
+
+#### 인텐트를 사용하여 결과 받는 방법
+
+1. 인텐트 시작: `startActivityForResult` 메서드를 사용하여 인텐트를 시작하고 요청 코드를 지정합니다.
+2. 결과 처리: 호출된 액티비티에서 `setResult` 메서드를 사용하여 결과를 설정합니다.
+3. 결과 수신: 호출한 액티비티에서는 `onActivityResult` 메서드를 오버라이드하여 결과를 처리합니다.
+
+#### 결과 반환의 주요 메서드
+
+| 메서드                            | 설명                                                               |
+|-----------------------------------|--------------------------------------------------------------------|
+| `startActivityForResult(Intent, int)` | 인텐트를 시작하고 결과를 요청합니다.                              |
+| `setResult(int, Intent)`          | 결과를 설정합니다. (RESULT_OK 또는 RESULT_CANCELED)                  |
+| `onActivityResult(int, int, Intent)` | 요청 코드, 결과 코드, 데이터를 수신하여 결과를 처리합니다.         |
+
+---
+
+### 3. Activity Result API
+
+#### 개념 설명
+Activity Result API는 `startActivityForResult`와 `onActivityResult`를 대체하여 결과를 처리하합니다. 이 API는 요청 코드가 필요 없으며, 결과 처리 로직을 인텐트를 시작하는 곳에 가까이 두어 코드의 가독성과 유지 보수성을 높입니다.
+
+#### Activity Result API 사용 방법
+
+1. ActivityResultContract: 어떤 종류의 인텐트를 보낼지와 그에 따른 결과를 정의합니다.
+2. ActivityResultLauncher: 인텐트를 시작하고 결과를 처리합니다.
+
+#### Activity Result API의 주요 클래스와 인터페이스
+
+| 클래스/인터페이스                          | 설명                                                                   |
+|--------------------------------------------|------------------------------------------------------------------------|
+| `ActivityResultContract`                   | 인텐트와 그 결과를 정의하는 계약 인터페이스입니다.                       |
+| `ActivityResultLauncher`                   | 인텐트를 시작하고 결과를 처리하는 런처입니다.                            |
+| `registerForActivityResult(Contract, Callback)` | 계약과 콜백을 등록하여 ActivityResultLauncher를 초기화합니다.           |
+
+---
+
+### 4. 자주 사용하는 ActivityResultContract
+
+ActivityResultContracts는 다양한 기본 계약을 제공합니다. 다음은 자주 사용하는 몇 가지 계약입니다.
+
+| ActivityResultContract                     | 설명                                                               |
+|--------------------------------------------|--------------------------------------------------------------------|
+| `ActivityResultContracts.StartActivityForResult` | 기본 인텐트를 사용하여 결과를 반환합니다.                              |
+| `ActivityResultContracts.RequestPermission` | 특정 권한을 요청하고 그 결과를 반환합니다.                              |
+| `ActivityResultContracts.TakePicture`      | 카메라를 사용하여 사진을 찍고 그 결과를 반환합니다.                     |
+| `ActivityResultContracts.PickContact`      | 연락처를 선택하고 그 결과를 반환합니다.                              |
+
+---
+
+### Activity Result API의 차이점
+
+- 간결함: `onActivityResult` 메서드를 오버라이드하지 않아도 되므로 코드가 간결해집니다.
+- 명확성: 결과 처리 로직이 인텐트를 시작하는 곳과 가까워져 코드의 가독성이 좋아집니다.
+- 유지 보수성: 각 결과 처리를 독립적으로 구성할 수 있어 코드 유지 보수가 용이합니다.
+
+---
+
+### 참고 자료
+
+- [안드로이드 개발자 공식 문서: Intent와 Intent Filters](https://developer.android.com/guide/components/intents-filters)
+- [안드로이드 개발자 공식 문서: 액티비티 결과 처리](https://developer.android.com/training/basics/intents/result)
+- [안드로이드 개발자 공식 문서: Activity Result API](https://developer.android.com/training/basics/intents/result)
+
+
+### 액티비티 스택(Activity Stack)이란?
+- 액티비티 스택은 LIFO(Last In, First Out) 구조로, 안드로이드 시스템에서 액티비티를 관리하는 방법입니다. 새로운 액티비티가 시작될 때마다 스택의 맨 위에 추가되고, 뒤로 가기(Back) 버튼을 누르면 스택의 맨 위에 있는 액티비티가 제거됩니다.
+
+#### 스택의 동작 방식
+1. 새로운 액티비티 시작: `startActivity()` 메서드를 호출하면 새로운 액티비티가 시작되고 스택의 맨 위에 추가됩니다.
+2. 현재 액티비티 일시 중지: 새로운 액티비티가 시작되면 현재 액티비티는 일시 중지 상태(Paused)가 됩니다.
+3. 현재 액티비티 종료: `finish()` 메서드를 호출하면 현재 액티비티가 종료되고 스택에서 제거됩니다.
+4. 뒤로 가기 버튼: 사용자가 뒤로 가기 버튼을 누르면 스택의 맨 위에 있는 액티비티가 제거되고, 그 아래에 있는 액티비티가 다시 활성화됩니다.
+
+#### 인텐트 플래그(Intent Flags)
+- FLAG_ACTIVITY_NEW_TASK: 새로운 태스크(Task)에서 액티비티를 시작합니다.
+- FLAG_ACTIVITY_CLEAR_TOP: 스택의 위에 있는 액티비티들을 제거하고 지정된 액티비티를 최상단으로 가져옵니다.
+- FLAG_ACTIVITY_SINGLE_TOP: 스택의 최상단에 동일한 액티비티가 이미 존재하는 경우, 새로운 인스턴스를 생성하지 않고 기존 인스턴스를 재사용합니다.
+
+#### 태스크(Task)와 백스택(Back Stack)
+- 태스크는 사용자 작업의 논리적인 단위로, 여러 액티비티로 구성될 수 있습니다. 예를 들어, 이메일 작성, 전송, 확인 등의 작업이 하나의 태스크를 구성할 수 있습니다.
+- 백스택은 액티비티 스택의 또 다른 표현으로, 사용자가 이전에 방문한 액티비티의 기록을 담고 있어 사용자가 뒤로 가기 버튼을 눌렀을 때 이전 액티비티로 돌아갈 수 있게 합니다.
+
+---
+
+## 리사이클러뷰
+
+
+### RecyclerView 개념 정리 표
+
+| 항목                | 설명                                                                                      |
+|-------------------------|-----------------------------------------------------------------------------------------------|
+| RecyclerView        | 데이터를 효율적으로 표시하고 스크롤 성능을 최적화하기 위해 설계된 리스트 뷰.                         |
+| Adapter             | 데이터를 ViewHolder에 바인딩하는 역할.                                                           |
+| ViewHolder          | 각 데이터 항목의 뷰를 보유하는 역할.                                                            |
+| LayoutManager       | 데이터 항목의 배치를 관리.                                                                     |
+| ItemDecoration      | RecyclerView 항목 사이에 간격을 추가하거나 구분선을 그리는 등의 장식을 추가하는 클래스.                 |
+| LayoutManager 종류  | LinearLayoutManager, GridLayoutManager, StaggeredGridLayoutManager.                          |
+| 클릭 이벤트 처리    | 항목 클릭 이벤트를 처리하려면 ViewHolder에 클릭 리스너를 추가.                                      |
+| ItemDecoration 종류 | 기본 제공 DividerItemDecoration, 커스텀 ItemDecoration.                                       |
+
+---
+
+### RecyclerView 구성 요소
+
+| 구성 요소       | 역할 및 설명                                                                                  |
+|---------------------|--------------------------------------------------------------------------------------------------|
+| RecyclerView    | 데이터를 효율적으로 표시하기 위한 컨테이너 뷰.                                                    |
+| Adapter         | 데이터를 개별 ViewHolder에 바인딩하는 역할.                                                       |
+| ViewHolder      | 각 항목의 뷰를 보유하고 재사용을 관리.                                                            |
+| LayoutManager   | RecyclerView 내의 항목 배치를 관리.                                                               |
+| ItemDecoration  | 항목 간의 간격, 구분선 등 추가적인 장식을 관리.                                                   |
+
+---
+
+### LayoutManager 종류
+
+| LayoutManager               | 설명                                                                                       |
+|---------------------------------|----------------------------------------------------------------------------------------------|
+| LinearLayoutManager         | 세로 또는 가로 방향의 리스트를 만듭니다.                                                       |
+| GridLayoutManager           | 그리드 형태의 레이아웃을 만듭니다.                                                           |
+| StaggeredGridLayoutManager  | 불규칙한 크기의 항목을 가진 그리드 레이아웃을 만듭니다.                                      |
+
+---
+
+### ItemDecoration
+
+| ItemDecoration 종류         | 설명                                                                                       |
+|---------------------------------|----------------------------------------------------------------------------------------------|
+| DividerItemDecoration       | 기본 구분선 ItemDecoration.                                                                   |
+| 커스텀 ItemDecoration       | 개발자가 정의한 간격이나 구분선을 추가.                                                      |
+
+---
+
+### RecyclerView 설정 예제
+
+| 설정 단계               | 설명 및 코드 예제                                                                         |
+|-----------------------------|---------------------------------------------------------------------------------------------|
+| 레이아웃 파일에 추가     | `res/layout/activity_main.xml` 파일에 RecyclerView 추가.                                       |
+| 데이터 모델 생성         | 데이터를 표현할 간단한 모델 클래스 생성 (`Item.kt`).                                            |
+| ViewHolder와 Adapter 생성| RecyclerView 항목을 보유하고 데이터를 바인딩하는 클래스 생성 (`ItemAdapter.kt`).                    |
+| 아이템 레이아웃 파일 생성| 각 항목의 레이아웃 정의 (`res/layout/item_layout.xml`).                                         |
+| RecyclerView 설정        | `MainActivity.kt` 파일에서 RecyclerView 설정 및 Adapter 연결.                                    |
+| ItemDecoration 추가      | `MainActivity.kt` 파일에서 기본 구분선 또는 커스텀 간격 추가.                                    |
+
+---
+
+### RecyclerView 설정 예제 코드
+
+#### dependencies 추가
+```kotlin
+dependencies {
+    implementation "androidx.recyclerview:recyclerview:1.2.1"
+}
+```
+
+#### activity_main.xml
+```xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</LinearLayout>
+```
+
+#### Item.kt
+```kotlin
+package com.example.myapp
+
+data class Item(val title: String)
+```
+
+#### ItemAdapter.kt
+```kotlin
+package com.example.myapp
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+
+class ItemAdapter(private val items: List<Item>) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
+
+    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val titleTextView: TextView = itemView.findViewById(R.id.item_title)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_layout, parent, false)
+        return ItemViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+        val item = items[position]
+        holder.titleTextView.text = item.title
+    }
+
+    override fun getItemCount() = items.size
+}
+```
+
+#### item_layout.xml
+```xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/item_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"/>
+</LinearLayout>
+```
+
+#### MainActivity.kt
+```kotlin
+package com.example.myapp
+
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.DividerItemDecoration
+import com.example.myapp.databinding.ActivityMainBinding
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
+        // 샘플 데이터 생성
+        val items = listOf(
+            Item("Item 1"),
+            Item("Item 2"),
+            Item("Item 3"),
+            Item("Item 4"),
+            Item("Item 5")
+        )
+
+        // RecyclerView 설정
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = ItemAdapter(items)
+
+        // DividerItemDecoration 추가
+        val dividerItemDecoration = DividerItemDecoration(binding.recyclerView.context, LinearLayoutManager.VERTICAL)
+        binding.recyclerView.addItemDecoration(dividerItemDecoration)
+    }
+}
+```
+
+---
+
+#### notify 메서드
+`RecyclerView.Adapter`의 `notify` 메서드들은 다양한 데이터 변경 이벤트를 `RecyclerView`에 알리는 역할을 합니다.
+
+
+```kotlin
+// 전체 데이터 세트가 변경되었을 때
+adapter.notifyDataSetChanged()
+
+// 특정 위치의 아이템이 변경되었을 때
+adapter.notifyItemChanged(2)
+
+// 새로운 아이템이 특정 위치에 삽입되었을 때
+adapter.notifyItemInserted(1)
+
+// 특정 위치의 아이템이 제거되었을 때
+adapter.notifyItemRemoved(3)
+
+// 특정 범위의 아이템이 변경되었을 때
+adapter.notifyItemRangeChanged(1, 3)
+
+// 새로운 아이템이 특정 범위에 삽입되었을 때
+adapter.notifyItemRangeInserted(0, 2)
+
+// 특정 범위의 아이템이 제거되었을 때
+adapter.notifyItemRangeRemoved(1, 4)
+
+// 아이템이 한 위치에서 다른 위치로 이동되었을 때
+adapter.notifyItemMoved(2, 5)
+```
+
+## Fragment
+
+Fragment는 Android 애플리케이션의 UI와 동작을 모듈화하고 재사용할 수 있도록 도와주는 구성 요소입니다. 하나의 Activity 내에서 여러 Fragment를 추가하고, 제거하며, 교체할 수 있습니다. 이는 복잡한 UI를 더 유연하고 관리하기 쉽게 만들며, 다양한 화면 크기와 방향을 지원하는 데 유용합니다.
+
+필요성:
+- 재사용성: 여러 Activity에서 동일한 UI 구성 요소를 사용해야 할 때, Fragment를 사용하면 코드의 재사용성을 높일 수 있습니다.
+- 모듈화: UI와 동작을 독립적인 모듈로 분리하여 관리하기 쉽게 만듭니다.
+- 유연한 레이아웃: 다양한 화면 크기와 방향에 맞춰 동적으로 UI를 구성할 수 있습니다.
+- 멀티태스킹: 하나의 Activity 내에서 여러 Fragment를 독립적으로 관리하여 멀티태스킹을 지원할 수 있습니다.
+
+#### Activity와 Fragment의 차이점
+
+| 특징         | Activity                                                                 | Fragment                                                   |
+|------------------|-----------------------------------------------------------------------------|----------------------------------------------------------------|
+| 역할         | 애플리케이션의 단일 화면을 관리하는 기본 단위                               | Activity 내에서 UI와 동작의 부분을 관리하는 모듈              |
+| 생명주기     | 독립적인 생명주기를 가짐                                                   | Activity의 생명주기에 종속됨                                   |
+| UI 관리     | 전체 화면의 UI를 관리                                                      | 화면의 일부 UI를 관리                                         |
+| 관리 방법   | `Activity`를 시작하거나 종료하여 관리                                        | `FragmentManager`를 통해 추가, 제거, 교체 가능                 |
+| 다양한 화면 지원 | 각 화면에 대해 별도의 Activity 필요                                     | 하나의 Activity 내에서 여러 Fragment를 사용하여 다양한 화면 구성 가능 |
+| 멀티태스킹   | 여러 Activity를 동시에 실행하기 어려움                                     | 하나의 Activity 내에서 여러 Fragment를 독립적으로 관리 가능    |
+
+### 참고 문서
+- [Fragment 공식 문서](https://developer.android.com/guide/fragments)
+
+#### Fragment 생명주기
+
+Fragment는 Activity와 유사한 생명주기를 가지지만, 몇 가지 차이점이 있습니다. 아래는 주요 생명주기 메서드와 그 역할을 설명합니다.
+
+- onAttach(): Fragment가 Activity에 추가될 때 호출됩니다.
+- onCreate(): Fragment가 생성될 때 호출됩니다. 초기 설정 작업을 수행합니다.
+- onCreateView(): Fragment의 UI를 처음 생성할 때 호출됩니다. 레이아웃을 인플레이트합니다.
+- onViewCreated(): 뷰가 생성되고 나서 호출됩니다. 뷰의 초기 설정 작업을 수행합니다.
+- onStart(): Fragment가 사용자에게 보이기 시작할 때 호출됩니다.
+- onResume(): Fragment가 사용자와 상호작용을 시작할 때 호출됩니다.
+- onPause(): Fragment가 사용자와 상호작용을 중지할 때 호출됩니다.
+- onStop(): Fragment가 더 이상 사용자에게 보이지 않을 때 호출됩니다.
+- onDestroyView(): Fragment의 뷰가 제거될 때 호출됩니다.
+- onDestroy(): Fragment가 파괴될 때 호출됩니다.
+- onDetach(): Fragment가 Activity에서 분리될 때 호출됩니다.
+
+#### FragmentManager
+
+FragmentManager는 Fragment를 관리하고, Fragment 간의 트랜잭션을 수행하는 데 사용됩니다. FragmentManager는 Fragment를 추가, 교체, 제거하는 작업을 처리하며, Fragment 트랜잭션의 백스택을 관리할 수도 있습니다.
+
+FragmentManager를 사용하여 Fragment를 관리하는 주요 메서드는 다음과 같습니다:
+- `beginTransaction()`: Fragment 트랜잭션을 시작합니다.
+- `findFragmentById(int)`: 특정 ID를 가진 Fragment를 찾습니다.
+- `findFragmentByTag(String)`: 특정 태그를 가진 Fragment를 찾습니다.
+- `popBackStack()`: 백스택에서 가장 최근의 트랜잭션을 팝(제거)합니다.
+
+#### FragmentTransaction
+
+FragmentTransaction은 Fragment의 추가, 교체, 제거 등의 작업을 수행하는 데 사용됩니다. 각 트랜잭션은 일련의 작업으로 구성되며, `commit()`을 호출하여 트랜잭션을 완료합니다.
+
+FragmentTransaction의 주요 메서드는 다음과 같습니다:
+- `add(int, Fragment)`: 특정 컨테이너 뷰에 Fragment를 추가합니다.
+- `replace(int, Fragment)`: 특정 컨테이너 뷰의 기존 Fragment를 새 Fragment로 교체합니다.
+- `remove(Fragment)`: Fragment를 제거합니다.
+- `addToBackStack(String)`: 트랜잭션을 백스택에 추가하여 뒤로 가기 버튼을 통해 되돌릴 수 있게 합니다.
+- `commit()`: 트랜잭션을 완료하고 변경 사항을 적용합니다.
+
+
+### ViewPager2 & TabLayout
+
+#### 개념
+
+TabLayout과 ViewPager2는 안드로이드에서 탭 기반 네비게이션을 구현할 때 사용되는 두 가지 주요 구성 요소입니다. TabLayout은 탭을 통해 여러 화면을 전환할 수 있는 사용자 인터페이스를 제공하고, ViewPager2는 사용자가 스와이프 제스처를 통해 여러 페이지를 탐색할 수 있도록 합니다.
+
+#### 주요 개념
+
+- TabLayout: 사용자가 선택할 수 있는 탭의 집합을 제공합니다. 탭은 일반적으로 상단에 위치하며, ViewPager2와 연동하여 화면 전환을 관리합니다.
+- ViewPager2: RecyclerView 기반의 새로운 ViewPager로, 여러 페이지를 스와이프를 통해 전환할 수 있게 합니다. FragmentStateAdapter를 통해 각 페이지에 해당하는 Fragment를 관리합니다.
+- FragmentStateAdapter: ViewPager2와 함께 사용되며, 각 페이지에 해당하는 Fragment를 생성하고 관리합니다.
+
+#### ViewPager2 주요 메서드
+
+| 메서드/속성                  | 설명                                                        |
+|------------------------------|-------------------------------------------------------------|
+| `setAdapter(Adapter adapter)` | ViewPager2에 어댑터를 설정합니다.                           |
+| `setCurrentItem(int item)`    | 현재 보여줄 페이지를 설정합니다.                             |
+| `getCurrentItem()`            | 현재 보여지는 페이지의 인덱스를 반환합니다.                  |
+| `setOrientation(int orientation)` | 페이지 스와이프 방향을 설정합니다. (HORIZONTAL or VERTICAL) |
+| `registerOnPageChangeCallback(OnPageChangeCallback callback)` | 페이지 변경 콜백을 등록합니다. |
+
+#### TabLayout, FragmentStateAdapter, TabLayoutMediator 주요 메서드
+
+| 구성 요소        | 주요 메서드/속성              | 설명                                                         |
+|------------------|------------------------------|-------------------------------------------------------------|
+| TabLayout        | `addTab(Tab tab)`            | TabLayout에 새로운 탭을 추가합니다.                         |
+| FragmentStateAdapter | `createFragment(int position)` | 주어진 위치에 해당하는 Fragment를 생성합니다.               |
+| TabLayoutMediator | `TabLayoutMediator(...)`     | TabLayout과 ViewPager2를 연동합니다.                        |
+| TabLayoutMediator | `attach()`                   | TabLayout과 ViewPager2의 연동을 적용합니다.                 |
+
+#### 공식문서
+[ViewPager2로 프래그먼트 간 슬라이드](https://developer.android.com/develop/ui/views/animations/screen-slide-2?hl=ko)
+
+
+
+
