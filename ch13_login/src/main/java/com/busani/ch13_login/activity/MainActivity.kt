@@ -1,5 +1,6 @@
 package com.busani.ch13_login.activity
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -15,6 +16,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val sharedPreferences =
+            getSharedPreferences("app_pref", Context.MODE_PRIVATE)
+
+        // 로그인 시 저장된 사용자 이름 가져옴
+        val username = sharedPreferences.getString("username", "")
+
 
     }
 

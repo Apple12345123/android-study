@@ -2023,7 +2023,874 @@ dependencies {
 }
 ```
 
+---
+
+### Retrofit 라이브러리
+
+Retrofit은 Square에서 개발한 HTTP 클라이언트 라이브러리로, 안드로이드 및 자바에서 RESTful API를 쉽게 사용할 수 있도록 도와줍니다. Retrofit을 사용하면 HTTP 요청을 보다 간결하고 직관적으로 작성할 수 있으며, 네트워크 통신을 비동기적으로 처리할 수 있습니다. 또한, Retrofit은 JSON 데이터를 자동으로 파싱하여 자바 객체로 변환해주는 편리한 기능을 제공합니다.
+
+#### 주요 기능 및 장점
+- 간편한 HTTP 요청 작성: 인터페이스 선언을 통해 HTTP 요청을 정의할 수 있습니다.
+- 자동 데이터 변환: Gson, Jackson 등의 라이브러리를 이용해 JSON 데이터를 자동으로 파싱하여 객체로 변환합니다.
+- 비동기 처리: 네트워크 요청을 비동기적으로 처리하여 UI 스레드가 블록되지 않도록 합니다.
+- 확장성: OkHttp, RxJava, Coroutine 등 다양한 라이브러리와 쉽게 통합할 수 있습니다.
+
+- [Retrofit 공식 사이트](https://square.github.io/retrofit/)
+
+#### 1. Retrofit 라이브러리 설치
+
+- Retrofit을 사용하기 위해서는 먼저 프로젝트의 `build.gradle` 파일에 Retrofit 및 관련 의존성을 추가
+
+```gradle
+// build.gradle (app level)
+dependencies {
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+}
+```
+
+#### 2. 데이터 클래스 정의
+
+- API 응답을 매핑할 데이터 클래스를 정의합니다.
+- 예를 들어, `Post`라는 이름의 데이터 클래스를 정의한다면,
+
+```kotlin
+// Post.kt
+data class Post(
+    val userId: Int,
+    val id: Int,
+    val title: String,
+    val body: String
+)
+```
+
+#### 3. API 인터페이스 정의
+
+- @GET: GET 요청을 지정하는 어노테이션
+- @POST: POST 요청을 지정하는 어노테이션
+- @PUT: PUT 요청을 지정하는 어노테이션
+- @DELETE: DELETE 요청을 지정하는 어노테이션
+- @Path: URL 경로에 변수 삽입
+- @Query: URL 쿼리 매개변수 추가
+- @Body: 요청 본문에 객체 전달
+
+```java
+public interface ApiService {
+    @GET("posts")
+    Call<List<Post>> getPosts();  // 모든 포스트를 가져오는 GET 요청
+
+    @GET("posts/{id}")
+    Call<Post> getPostById(@Path("id") int id);  // 특정 ID의 포스트를 가져오는 GET 요청
+
+    @POST("posts")
+    Call<Post> createPost(@Body Post post);  // 새로운 포스트를 생성하는 POST 요청
+
+    @PUT("posts/{id}")
+    Call<Post> updatePost(@Path("id") int id, @Body Post post);  // 특정 ID의 포스트를 수정하는 PUT 요청
+
+    @DELETE("posts/{id}")
+    Call<Void> deletePost(@Path("id") int id);  // 특정 ID의 포스트를 삭제하는 DELETE 요청
+}
+```
+
+#### 4. Retrofit 인스턴스 생성
+
+Retrofit 인스턴스를 생성하고, `ApiService` 인터페이스를 구현하는 객체를 생성합니다.
+- Retrofit.Builder: Retrofit 인스턴스를 생성하는 빌더 클래스
+- Base URL: 기본 URL 설정
+- ConverterFactory: JSON 파싱을 위한 컨버터 팩토리 설정 (여기서는 Gson 사용)
 
 
+```kotlin
+// RetrofitClient.kt
+object RetrofitClient {
+    private const val BASE_URL = "https://api.example.com/"
+
+    val instance: ApiService by lazy {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create()) // JSON 변환을 위해 GsonConverterFactory 추가
+            .build()
+
+        retrofit.create(ApiService::class.java)
+    }
+}
+```
+
+#### 5. Retrofit을 사용한 네트워크 호출
+
+- Call: 네트워크 요청을 나타내는 객체
+- enqueue: 비동기 요청 처리 메서드
+- Callback: 응답 처리 콜백 인터페이스
+
+```java
+ApiService apiService = retrofit.create(ApiService.class);
+
+// GET 요청 예시
+Call<List<Post>> call = apiService.getPosts();
+call.enqueue(new Callback<List<Post>>() {
+    @Override
+    public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+        if (response.isSuccessful()) {
+            List<Post> posts = response.body();
+            // 응답 데이터 처리
+        }
+    }
+
+    @Override
+    public void onFailure(Call<List<Post>> call, Throwable t) {
+        // 오류 처리
+    }
+});
+```
+
+#### 6. AndroidManifest.xml 설정
+
+- 인터넷 권한을 사용하기 위해 `AndroidManifest.xml` 파일에 아래 내용을 추가
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.busanit.androidstudy">
+
+    <application
+        ...>
+        <!-- 인터넷 권한 추가 -->
+        <uses-permission android:name="android.permission.INTERNET" />
+    </application>
+</manifest>
+```
+
+---
+### Retrofit의 주요 클래스 및 인터페이스
+
+#### 1. `Call`
+`Call`은 Retrofit에서 네트워크 요청을 나타내는 인터페이스입니다. 이 인터페이스는 요청을 실행하고, 응답을 처리하는 메서드를 제공합니다.
+
+- 메서드
+    - `enqueue(Callback<T> callback)`: 비동기적으로 요청을 실행합니다. 요청이 완료되면 `Callback` 객체의 메서드가 호출됩니다.
+    - `execute()`: 동기적으로 요청을 실행합니다. 이 메서드는 네트워크 요청이 완료될 때까지 호출을 차단(blocking)합니다.
+
+예시 코드
+
+```kotlin
+interface ApiService {
+    @GET("posts")
+    fun getPosts(): Call<List<Post>> // 네트워크 요청을 나타내는 Call 객체 반환
+}
+```
+
+#### 2. `Callback`
+`Callback`은 Retrofit에서 비동기 네트워크 요청의 응답을 처리하기 위한 인터페이스입니다. `Call` 객체의 `enqueue` 메서드와 함께 사용됩니다.
+
+- 메서드
+    - `onResponse(call: Call<T>, response: Response<T>)`: 요청이 성공적으로 완료되면 호출됩니다. `Response` 객체를 통해 응답 데이터를 접근할 수 있습니다.
+    - `onFailure(call: Call<T>, t: Throwable)`: 요청이 실패하면 호출됩니다. 실패 원인은 `Throwable` 객체를 통해 확인할 수 있습니다.
+
+예시 코드
+
+```kotlin
+val api = RetrofitClient.instance
+api.getPosts().enqueue(object : Callback<List<Post>> {
+    override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
+        if (response.isSuccessful) {
+            val posts = response.body()
+            // 성공적으로 응답을 받은 경우 처리
+        }
+    }
+
+    override fun onFailure(call: Call<List<Post>>, t: Throwable) {
+        // 요청 실패 처리
+    }
+})
+```
+
+#### 3. `Response`
+`Response`는 Retrofit에서 HTTP 응답을 나타내는 클래스입니다. 이 클래스는 응답 데이터와 함께 상태 코드, 헤더 등도 제공합니다.
+
+- 메서드
+    - `body()`: 응답 데이터를 반환합니다. 일반적으로 요청이 성공한 경우 사용됩니다.
+    - `code()`: HTTP 상태 코드를 반환합니다.
+    - `message()`: 상태 코드와 관련된 메시지를 반환합니다.
+    - `headers()`: 응답의 헤더를 반환합니다.
+    - `isSuccessful()`: 응답이 성공적(상태 코드 200~299)인지 여부를 반환합니다.
+
+예시 코드
+
+```kotlin
+override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
+    if (response.isSuccessful) {
+        val posts = response.body()
+        // 성공적으로 응답을 받은 경우 처리
+    } else {
+        // 응답은 받았지만 성공적이지 않은 경우 처리
+    }
+}
+```
+
+#### 4. `ConverterFactory`
+`ConverterFactory`는 Retrofit에서 HTTP 응답을 원하는 형식으로 변환하기 위한 팩토리 패턴 클래스입니다. 일반적으로 JSON 데이터를 자바 객체로 변환하는 데 사용됩니다.
+
+- GsonConverterFactory
+    - Retrofit에서 가장 많이 사용되는 `ConverterFactory` 중 하나입니다. Gson을 이용해 JSON 데이터를 자바 객체로 변환합니다.
+
+예시 코드
+
+```kotlin
+val retrofit = Retrofit.Builder()
+    .baseUrl("https://jsonplaceholder.typicode.com/")
+    .addConverterFactory(GsonConverterFactory.create()) // Gson을 이용한 데이터 변환
+    .build()
+```
+
+---
+
+### Glide
+
+Glide는 이미지 로딩과 캐싱을 위해 강력하고 유연한 API를 제공하는 안드로이드 라이브러리입니다. 여기에서는 Glide의 주요 클래스와 메서드를 정리하였습니다.
+
+- [Gilde 공식문서](https://bumptech.github.io/glide/)
+
+- Glide: 이미지 로딩 및 캐싱 라이브러리의 진입점
+- RequestManager: 이미지 요청을 관리하는 클래스
+- RequestBuilder: 이미지 요청을 구성하는 클래스
+- RequestOptions: 이미지 요청에 대한 옵션을 설정하는 클래스
+- Target: 이미지를 로드할 대상
+
+#### 주요 클래스
+
+1. Glide
+    - Glide API의 진입점으로, 이미지를 로드하기 위한 다양한 정적 메서드를 제공합니다.
+
+2. RequestManager
+    - Glide의 이미지 요청을 관리하는 클래스입니다. Glide 인스턴스와 연관된 모든 요청을 시작하고 취소하는 역할을 합니다.
+
+3. RequestBuilder
+    - 이미지 요청을 구성하는 데 사용됩니다. URL, 파일, 리소스 등으로부터 이미지를 로드하고, 이미지의 크기, 변환, 캐싱 전략 등을 설정할 수 있습니다.
+
+4. RequestOptions
+    - 이미지 요청에 대한 다양한 옵션을 설정할 수 있습니다. 크기 조절, 변환, 플래이스홀더, 에러 이미지 등을 설정합니다.
+
+5. Target
+    - 이미지를 로드할 대상(예: ImageView)을 나타냅니다. Glide는 Target을 통해 이미지를 로드하고 표시합니다.
 
 
+#### 주요 메서드
+
+#### Glide 클래스의 메서드
+
+1. with()
+    - `Glide.with(Context context)`
+    - `Glide.with(Activity activity)`
+    - `Glide.with(Fragment fragment)`
+    - Glide를 시작하고 RequestManager를 반환합니다.
+
+##### RequestManager 클래스의 메서드
+
+1. load()
+    - `load(String url)`
+    - `load(File file)`
+    - `load(Uri uri)`
+    - `load(Integer resourceId)`
+    - 이미지를 로드할 소스를 지정합니다.
+
+2. asBitmap()
+    - 이미지를 Bitmap 형식으로 로드합니다.
+
+3. asGif()
+    - 이미지를 GIF 형식으로 로드합니다.
+
+##### RequestBuilder 클래스의 메서드
+
+1. apply()
+    - `apply(RequestOptions options)`
+    - RequestOptions을 적용하여 이미지 요청을 구성합니다.
+
+2. placeholder()
+    - `placeholder(Drawable drawable)`
+    - `placeholder(int resourceId)`
+    - 이미지를 로드하는 동안 표시할 플래이스홀더를 설정합니다.
+
+3. error()
+    - `error(Drawable drawable)`
+    - `error(int resourceId)`
+    - 이미지 로드 실패 시 표시할 에러 이미지를 설정합니다.
+
+4. override()
+    - `override(int width, int height)`
+    - 로드할 이미지의 크기를 설정합니다.
+
+5. transform()
+    - `transform(Transformation<Bitmap> transformation)`
+    - 이미지를 변환하는 데 사용됩니다. 예를 들어, 원형 크롭, 블러 효과 등을 적용할 수 있습니다.
+
+6. into()
+    - `into(ImageView view)`
+    - `into(Target<TranscodeType> target)`
+    - 이미지를 로드하고 대상(Target)에 표시합니다.
+
+#### RequestOptions 클래스의 메서드
+
+1. diskCacheStrategy()
+    - `diskCacheStrategy(DiskCacheStrategy strategy)`
+    - 디스크 캐싱 전략을 설정합니다. 예: `DiskCacheStrategy.ALL`, `DiskCacheStrategy.NONE`
+
+2. skipMemoryCache()
+    - `skipMemoryCache(boolean skip)`
+    - 메모리 캐싱을 건너뛰는지 여부를 설정합니다.
+
+3. centerCrop()
+    - 이미지를 가운데 크롭하여 ImageView에 맞춥니다.
+
+4. circleCrop()
+    - 이미지를 원형으로 크롭하여 ImageView에 맞춥니다.
+
+5. fitCenter()
+    - 이미지를 중앙에 맞추어 ImageView에 표시합니다.
+
+6. priority()
+    - `priority(Priority priority)`
+    - 이미지 로드의 우선순위를 설정합니다. 예: `Priority.HIGH`, `Priority.LOW`
+
+### 예제 코드
+
+```kotlin
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+
+val imageUrl = "https://via.placeholder.com/300.png"
+
+Glide.with(this)
+    .load(imageUrl) // 이미지 URL 설정
+    .apply(RequestOptions()
+        .placeholder(R.drawable.placeholder) // 플래이스홀더 이미지 설정
+        .error(R.drawable.error) // 에러 이미지 설정
+        .override(200, 200) // 이미지 크기 설정
+        .transform(CircleCrop()) // 원형 크롭 변환 적용
+    )
+    .into(binding.imageView) // 이미지뷰에 이미지 로드
+```
+
+---
+
+
+## 안드로이드 에뮬레이터에서 스프링부트 개발서버(http://localhost:8080) 네트워킹
+
+- `CLEARTEXT communication to 10.0.2.2 not permitted by network security policy` 오류 발생
+- 안드로이드 앱에서 `CLEARTEXT communication to 10.0.2.2 not permitted by network security policy` 오류가 발생하는 이유는 안드로이드의 네트워크 보안 정책(Network Security Policy) 때문입니다. 기본적으로 안드로이드 9(Pie) 이상에서는 보안을 강화하기 위해 기본적으로 HTTP와 같은 평문 통신을 차단하고 HTTPS와 같은 암호화된 통신만을 허용합니다.
+
+### HTTP와 HTTPS 차이
+- HTTP (HyperText Transfer Protocol): 인터넷에서 데이터를 주고받기 위한 프로토콜로, 데이터가 암호화되지 않고 평문으로 전송됩니다. 따라서 중간에 데이터가 탈취될 위험이 있습니다.
+- HTTPS (HyperText Transfer Protocol Secure): HTTP에 SSL/TLS 암호화가 추가된 프로토콜로, 데이터가 암호화되어 전송됩니다. 데이터의 기밀성과 무결성을 보장하며, 중간에 데이터가 탈취되거나 변조될 위험이 훨씬 적습니다.
+
+
+### 1. 네트워크 보안 구성 파일 생성
+
+#### `res/xml/network_security_config.xml`
+
+`res/xml` 디렉토리에 `network_security_config.xml` 파일을 생성하고, 다음 내용을 추가합니다.
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>
+```
+
+이 파일은 `10.0.2.2` 도메인에 대해 평문 통신을 허용합니다.
+
+### 2. 매니페스트 파일 수정
+
+네트워크 보안 구성 파일을 `AndroidManifest.xml` 파일에서 참조하도록 수정합니다.
+
+#### `AndroidManifest.xml`
+
+```xml
+...
+<application
+    ...
+    android:networkSecurityConfig="@xml/network_security_config">
+    ...
+</application>
+
+```
+
+### 3. Retrofit 인스턴스 재확인
+
+Retrofit 인스턴스에서 사용하는 기본 URL이 HTTP인지 HTTPS인지 다시 확인합니다.
+
+#### `RetrofitInstance.kt`
+
+```kotlin
+package com.busanit.ch13_login
+
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+object RetrofitClient {
+    // 안드로이드에서 일반 HTTP 프로토콜 요청은 보안상 금지되어 있음.
+    // https : http 프로토콜에 보안이 추가된 프로토콜
+    // 안드로이드 에뮬레이터에서 localhost는 에뮬레이터 자기자신을 가리킴
+    // 개발 서버의 localhost 접속시 10.0.2.2 IP를 사용
+    // 공식문서 : https://developer.android.com/studio/run/emulator-networking?hl=ko
+
+     private val BASE_URL = "http://10.0.2.2:8080"    // 개인 PC의 localhost(127.0.0.1) 루프백 주소
+    
+//    private val BASE_URL = "http://10.100.203.3:8080"   // 개인 PC의 IP주소
+
+    val api: ApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+}
+```
+
+- 안드로이드 앱에서 `10.0.2.2` 도메인으로의 평문 통신이 허용되어, 네트워크 통신이 정상적으로 작동.
+
+### 요약
+
+1. `res/xml/network_security_config.xml` 파일을 생성하여 평문 통신을 허용하도록 설정.
+2. `AndroidManifest.xml` 파일에서 네트워크 보안 구성 파일을 참조하도록 수정.
+3. Retrofit 인스턴스의 기본 URL이 HTTP를 사용하는지 확인.
+   }
+```
+
+---
+
+### Retrofit 라이브러리
+
+Retrofit은 Square에서 개발한 HTTP 클라이언트 라이브러리로, 안드로이드 및 자바에서 RESTful API를 쉽게 사용할 수 있도록 도와줍니다. Retrofit을 사용하면 HTTP 요청을 보다 간결하고 직관적으로 작성할 수 있으며, 네트워크 통신을 비동기적으로 처리할 수 있습니다. 또한, Retrofit은 JSON 데이터를 자동으로 파싱하여 자바 객체로 변환해주는 편리한 기능을 제공합니다.
+
+#### 주요 기능 및 장점
+- 간편한 HTTP 요청 작성: 인터페이스 선언을 통해 HTTP 요청을 정의할 수 있습니다.
+- 자동 데이터 변환: Gson, Jackson 등의 라이브러리를 이용해 JSON 데이터를 자동으로 파싱하여 객체로 변환합니다.
+- 비동기 처리: 네트워크 요청을 비동기적으로 처리하여 UI 스레드가 블록되지 않도록 합니다.
+- 확장성: OkHttp, RxJava, Coroutine 등 다양한 라이브러리와 쉽게 통합할 수 있습니다.
+
+- [Retrofit 공식 사이트](https://square.github.io/retrofit/)
+
+#### 1. Retrofit 라이브러리 설치
+
+- Retrofit을 사용하기 위해서는 먼저 프로젝트의 `build.gradle` 파일에 Retrofit 및 관련 의존성을 추가
+
+```gradle
+// build.gradle (app level)
+dependencies {
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+}
+```
+
+#### 2. 데이터 클래스 정의
+
+- API 응답을 매핑할 데이터 클래스를 정의합니다.
+- 예를 들어, `Post`라는 이름의 데이터 클래스를 정의한다면,
+
+```kotlin
+// Post.kt
+data class Post(
+    val userId: Int,
+    val id: Int,
+    val title: String,
+    val body: String
+)
+```
+
+#### 3. API 인터페이스 정의
+
+- @GET: GET 요청을 지정하는 어노테이션
+- @POST: POST 요청을 지정하는 어노테이션
+- @PUT: PUT 요청을 지정하는 어노테이션
+- @DELETE: DELETE 요청을 지정하는 어노테이션
+- @Path: URL 경로에 변수 삽입
+- @Query: URL 쿼리 매개변수 추가
+- @Body: 요청 본문에 객체 전달
+
+```java
+public interface ApiService {
+    @GET("posts")
+    Call<List<Post>> getPosts();  // 모든 포스트를 가져오는 GET 요청
+
+    @GET("posts/{id}")
+    Call<Post> getPostById(@Path("id") int id);  // 특정 ID의 포스트를 가져오는 GET 요청
+
+    @POST("posts")
+    Call<Post> createPost(@Body Post post);  // 새로운 포스트를 생성하는 POST 요청
+
+    @PUT("posts/{id}")
+    Call<Post> updatePost(@Path("id") int id, @Body Post post);  // 특정 ID의 포스트를 수정하는 PUT 요청
+
+    @DELETE("posts/{id}")
+    Call<Void> deletePost(@Path("id") int id);  // 특정 ID의 포스트를 삭제하는 DELETE 요청
+}
+```
+
+#### 4. Retrofit 인스턴스 생성
+
+Retrofit 인스턴스를 생성하고, `ApiService` 인터페이스를 구현하는 객체를 생성합니다.
+- Retrofit.Builder: Retrofit 인스턴스를 생성하는 빌더 클래스
+- Base URL: 기본 URL 설정
+- ConverterFactory: JSON 파싱을 위한 컨버터 팩토리 설정 (여기서는 Gson 사용)
+
+
+```kotlin
+// RetrofitClient.kt
+object RetrofitClient {
+    private const val BASE_URL = "https://api.example.com/"
+
+    val instance: ApiService by lazy {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create()) // JSON 변환을 위해 GsonConverterFactory 추가
+            .build()
+
+        retrofit.create(ApiService::class.java)
+    }
+}
+```
+
+#### 5. Retrofit을 사용한 네트워크 호출
+
+- Call: 네트워크 요청을 나타내는 객체
+- enqueue: 비동기 요청 처리 메서드
+- Callback: 응답 처리 콜백 인터페이스
+
+```java
+ApiService apiService = retrofit.create(ApiService.class);
+
+// GET 요청 예시
+Call<List<Post>> call = apiService.getPosts();
+call.enqueue(new Callback<List<Post>>() {
+    @Override
+    public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+        if (response.isSuccessful()) {
+            List<Post> posts = response.body();
+            // 응답 데이터 처리
+        }
+    }
+
+    @Override
+    public void onFailure(Call<List<Post>> call, Throwable t) {
+        // 오류 처리
+    }
+});
+```
+
+#### 6. AndroidManifest.xml 설정
+
+- 인터넷 권한을 사용하기 위해 `AndroidManifest.xml` 파일에 아래 내용을 추가
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.busanit.androidstudy">
+
+    <application
+        ...>
+        <!-- 인터넷 권한 추가 -->
+        <uses-permission android:name="android.permission.INTERNET" />
+    </application>
+</manifest>
+```
+
+---
+### Retrofit의 주요 클래스 및 인터페이스
+
+#### 1. `Call`
+`Call`은 Retrofit에서 네트워크 요청을 나타내는 인터페이스입니다. 이 인터페이스는 요청을 실행하고, 응답을 처리하는 메서드를 제공합니다.
+
+- 메서드
+    - `enqueue(Callback<T> callback)`: 비동기적으로 요청을 실행합니다. 요청이 완료되면 `Callback` 객체의 메서드가 호출됩니다.
+    - `execute()`: 동기적으로 요청을 실행합니다. 이 메서드는 네트워크 요청이 완료될 때까지 호출을 차단(blocking)합니다.
+
+예시 코드
+
+```kotlin
+interface ApiService {
+    @GET("posts")
+    fun getPosts(): Call<List<Post>> // 네트워크 요청을 나타내는 Call 객체 반환
+}
+```
+
+#### 2. `Callback`
+`Callback`은 Retrofit에서 비동기 네트워크 요청의 응답을 처리하기 위한 인터페이스입니다. `Call` 객체의 `enqueue` 메서드와 함께 사용됩니다.
+
+- 메서드
+    - `onResponse(call: Call<T>, response: Response<T>)`: 요청이 성공적으로 완료되면 호출됩니다. `Response` 객체를 통해 응답 데이터를 접근할 수 있습니다.
+    - `onFailure(call: Call<T>, t: Throwable)`: 요청이 실패하면 호출됩니다. 실패 원인은 `Throwable` 객체를 통해 확인할 수 있습니다.
+
+예시 코드
+
+```kotlin
+val api = RetrofitClient.instance
+api.getPosts().enqueue(object : Callback<List<Post>> {
+    override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
+        if (response.isSuccessful) {
+            val posts = response.body()
+            // 성공적으로 응답을 받은 경우 처리
+        }
+    }
+
+    override fun onFailure(call: Call<List<Post>>, t: Throwable) {
+        // 요청 실패 처리
+    }
+})
+```
+
+#### 3. `Response`
+`Response`는 Retrofit에서 HTTP 응답을 나타내는 클래스입니다. 이 클래스는 응답 데이터와 함께 상태 코드, 헤더 등도 제공합니다.
+
+- 메서드
+    - `body()`: 응답 데이터를 반환합니다. 일반적으로 요청이 성공한 경우 사용됩니다.
+    - `code()`: HTTP 상태 코드를 반환합니다.
+    - `message()`: 상태 코드와 관련된 메시지를 반환합니다.
+    - `headers()`: 응답의 헤더를 반환합니다.
+    - `isSuccessful()`: 응답이 성공적(상태 코드 200~299)인지 여부를 반환합니다.
+
+예시 코드
+
+```kotlin
+override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
+    if (response.isSuccessful) {
+        val posts = response.body()
+        // 성공적으로 응답을 받은 경우 처리
+    } else {
+        // 응답은 받았지만 성공적이지 않은 경우 처리
+    }
+}
+```
+
+#### 4. `ConverterFactory`
+`ConverterFactory`는 Retrofit에서 HTTP 응답을 원하는 형식으로 변환하기 위한 팩토리 패턴 클래스입니다. 일반적으로 JSON 데이터를 자바 객체로 변환하는 데 사용됩니다.
+
+- GsonConverterFactory
+    - Retrofit에서 가장 많이 사용되는 `ConverterFactory` 중 하나입니다. Gson을 이용해 JSON 데이터를 자바 객체로 변환합니다.
+
+예시 코드
+
+```kotlin
+val retrofit = Retrofit.Builder()
+    .baseUrl("https://jsonplaceholder.typicode.com/")
+    .addConverterFactory(GsonConverterFactory.create()) // Gson을 이용한 데이터 변환
+    .build()
+```
+
+---
+
+### Glide
+
+Glide는 이미지 로딩과 캐싱을 위해 강력하고 유연한 API를 제공하는 안드로이드 라이브러리입니다. 여기에서는 Glide의 주요 클래스와 메서드를 정리하였습니다.
+
+- [Gilde 공식문서](https://bumptech.github.io/glide/)
+
+- Glide: 이미지 로딩 및 캐싱 라이브러리의 진입점
+- RequestManager: 이미지 요청을 관리하는 클래스
+- RequestBuilder: 이미지 요청을 구성하는 클래스
+- RequestOptions: 이미지 요청에 대한 옵션을 설정하는 클래스
+- Target: 이미지를 로드할 대상
+
+#### 주요 클래스
+
+1. Glide
+    - Glide API의 진입점으로, 이미지를 로드하기 위한 다양한 정적 메서드를 제공합니다.
+
+2. RequestManager
+    - Glide의 이미지 요청을 관리하는 클래스입니다. Glide 인스턴스와 연관된 모든 요청을 시작하고 취소하는 역할을 합니다.
+
+3. RequestBuilder
+    - 이미지 요청을 구성하는 데 사용됩니다. URL, 파일, 리소스 등으로부터 이미지를 로드하고, 이미지의 크기, 변환, 캐싱 전략 등을 설정할 수 있습니다.
+
+4. RequestOptions
+    - 이미지 요청에 대한 다양한 옵션을 설정할 수 있습니다. 크기 조절, 변환, 플래이스홀더, 에러 이미지 등을 설정합니다.
+
+5. Target
+    - 이미지를 로드할 대상(예: ImageView)을 나타냅니다. Glide는 Target을 통해 이미지를 로드하고 표시합니다.
+
+
+#### 주요 메서드
+
+#### Glide 클래스의 메서드
+
+1. with()
+    - `Glide.with(Context context)`
+    - `Glide.with(Activity activity)`
+    - `Glide.with(Fragment fragment)`
+    - Glide를 시작하고 RequestManager를 반환합니다.
+
+##### RequestManager 클래스의 메서드
+
+1. load()
+    - `load(String url)`
+    - `load(File file)`
+    - `load(Uri uri)`
+    - `load(Integer resourceId)`
+    - 이미지를 로드할 소스를 지정합니다.
+
+2. asBitmap()
+    - 이미지를 Bitmap 형식으로 로드합니다.
+
+3. asGif()
+    - 이미지를 GIF 형식으로 로드합니다.
+
+##### RequestBuilder 클래스의 메서드
+
+1. apply()
+    - `apply(RequestOptions options)`
+    - RequestOptions을 적용하여 이미지 요청을 구성합니다.
+
+2. placeholder()
+    - `placeholder(Drawable drawable)`
+    - `placeholder(int resourceId)`
+    - 이미지를 로드하는 동안 표시할 플래이스홀더를 설정합니다.
+
+3. error()
+    - `error(Drawable drawable)`
+    - `error(int resourceId)`
+    - 이미지 로드 실패 시 표시할 에러 이미지를 설정합니다.
+
+4. override()
+    - `override(int width, int height)`
+    - 로드할 이미지의 크기를 설정합니다.
+
+5. transform()
+    - `transform(Transformation<Bitmap> transformation)`
+    - 이미지를 변환하는 데 사용됩니다. 예를 들어, 원형 크롭, 블러 효과 등을 적용할 수 있습니다.
+
+6. into()
+    - `into(ImageView view)`
+    - `into(Target<TranscodeType> target)`
+    - 이미지를 로드하고 대상(Target)에 표시합니다.
+
+#### RequestOptions 클래스의 메서드
+
+1. diskCacheStrategy()
+    - `diskCacheStrategy(DiskCacheStrategy strategy)`
+    - 디스크 캐싱 전략을 설정합니다. 예: `DiskCacheStrategy.ALL`, `DiskCacheStrategy.NONE`
+
+2. skipMemoryCache()
+    - `skipMemoryCache(boolean skip)`
+    - 메모리 캐싱을 건너뛰는지 여부를 설정합니다.
+
+3. centerCrop()
+    - 이미지를 가운데 크롭하여 ImageView에 맞춥니다.
+
+4. circleCrop()
+    - 이미지를 원형으로 크롭하여 ImageView에 맞춥니다.
+
+5. fitCenter()
+    - 이미지를 중앙에 맞추어 ImageView에 표시합니다.
+
+6. priority()
+    - `priority(Priority priority)`
+    - 이미지 로드의 우선순위를 설정합니다. 예: `Priority.HIGH`, `Priority.LOW`
+
+### 예제 코드
+
+```kotlin
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+
+val imageUrl = "https://via.placeholder.com/300.png"
+
+Glide.with(this)
+    .load(imageUrl) // 이미지 URL 설정
+    .apply(RequestOptions()
+        .placeholder(R.drawable.placeholder) // 플래이스홀더 이미지 설정
+        .error(R.drawable.error) // 에러 이미지 설정
+        .override(200, 200) // 이미지 크기 설정
+        .transform(CircleCrop()) // 원형 크롭 변환 적용
+    )
+    .into(binding.imageView) // 이미지뷰에 이미지 로드
+```
+
+---
+
+
+## 안드로이드 에뮬레이터에서 스프링부트 개발서버(http://localhost:8080) 네트워킹
+
+- `CLEARTEXT communication to 10.0.2.2 not permitted by network security policy` 오류 발생
+- 안드로이드 앱에서 `CLEARTEXT communication to 10.0.2.2 not permitted by network security policy` 오류가 발생하는 이유는 안드로이드의 네트워크 보안 정책(Network Security Policy) 때문입니다. 기본적으로 안드로이드 9(Pie) 이상에서는 보안을 강화하기 위해 기본적으로 HTTP와 같은 평문 통신을 차단하고 HTTPS와 같은 암호화된 통신만을 허용합니다.
+
+### HTTP와 HTTPS 차이
+- HTTP (HyperText Transfer Protocol): 인터넷에서 데이터를 주고받기 위한 프로토콜로, 데이터가 암호화되지 않고 평문으로 전송됩니다. 따라서 중간에 데이터가 탈취될 위험이 있습니다.
+- HTTPS (HyperText Transfer Protocol Secure): HTTP에 SSL/TLS 암호화가 추가된 프로토콜로, 데이터가 암호화되어 전송됩니다. 데이터의 기밀성과 무결성을 보장하며, 중간에 데이터가 탈취되거나 변조될 위험이 훨씬 적습니다.
+
+
+### 1. 네트워크 보안 구성 파일 생성
+
+#### `res/xml/network_security_config.xml`
+
+`res/xml` 디렉토리에 `network_security_config.xml` 파일을 생성하고, 다음 내용을 추가합니다.
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>
+```
+
+이 파일은 `10.0.2.2` 도메인에 대해 평문 통신을 허용합니다.
+
+### 2. 매니페스트 파일 수정
+
+네트워크 보안 구성 파일을 `AndroidManifest.xml` 파일에서 참조하도록 수정합니다.
+
+#### `AndroidManifest.xml`
+
+```xml
+...
+<application
+    ...
+    android:networkSecurityConfig="@xml/network_security_config">
+    ...
+</application>
+
+```
+
+### 3. Retrofit 인스턴스 재확인
+
+Retrofit 인스턴스에서 사용하는 기본 URL이 HTTP인지 HTTPS인지 다시 확인합니다.
+
+#### `RetrofitInstance.kt`
+
+```kotlin
+package com.busanit.ch13_login
+
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+object RetrofitClient {
+    // 안드로이드에서 일반 HTTP 프로토콜 요청은 보안상 금지되어 있음.
+    // https : http 프로토콜에 보안이 추가된 프로토콜
+    // 안드로이드 에뮬레이터에서 localhost는 에뮬레이터 자기자신을 가리킴
+    // 개발 서버의 localhost 접속시 10.0.2.2 IP를 사용
+    // 공식문서 : https://developer.android.com/studio/run/emulator-networking?hl=ko
+
+     private val BASE_URL = "http://10.0.2.2:8080"    // 개인 PC의 localhost(127.0.0.1) 루프백 주소
+    
+//    private val BASE_URL = "http://10.100.203.3:8080"   // 개인 PC의 IP주소
+
+    val api: ApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+}
+```
+
+- 안드로이드 앱에서 `10.0.2.2` 도메인으로의 평문 통신이 허용되어, 네트워크 통신이 정상적으로 작동.
+
+### 요약
+
+1. `res/xml/network_security_config.xml` 파일을 생성하여 평문 통신을 허용하도록 설정.
+2. `AndroidManifest.xml` 파일에서 네트워크 보안 구성 파일을 참조하도록 수정.
+3. Retrofit 인스턴스의 기본 URL이 HTTP를 사용하는지 확인.
